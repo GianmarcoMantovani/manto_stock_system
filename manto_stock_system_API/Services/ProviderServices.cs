@@ -151,6 +151,16 @@ namespace manto_stock_system_API.Services
                 worksheet.Cell(i + 2, 8).Value = item.Products;
             }
         }
+
+        public async Task<ListResponse<CityDTO>> GetCities(
+            BaseFilter baseFilter)
+        {
+            var cities = _context.Cities
+                .AsQueryable();
+
+            return await cities.FilterSortPaginate<City, CityDTO>(
+                baseFilter, _mapper);
+        }
     }
 }
 

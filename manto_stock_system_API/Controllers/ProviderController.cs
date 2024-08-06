@@ -111,5 +111,17 @@ namespace manto_stock_system_API.Controllers
         {
             return Ok(await _providerServices.GetGeneralReport(baseFilter));
         }
+
+        /// <summary>
+        ///  Get Cities
+        /// </summary>
+        /// <param name="baseFilter"></param>
+        /// <returns></returns>
+        [HttpGet("cities")]
+        public async Task<ActionResult<ListResponse<CityDTO>>> GetCities(
+            [FromQuery] BaseFilter baseFilter)
+        {
+            return await _providerServices.GetCities(baseFilter);
+        }
     }
 }
