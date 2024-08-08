@@ -72,5 +72,15 @@ namespace manto_stock_system_API.Controllers
         {
             return Ok(await _saleServices.GetGeneralReport(baseFilter));
         }
+
+        /// <summary>
+        /// Get Last Sales
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("last")]
+        public async Task<ActionResult<SaleDTO>> GetLastSales()
+        {
+            return Ok(await _saleServices.GetLastSales());
+        }
     }
 }

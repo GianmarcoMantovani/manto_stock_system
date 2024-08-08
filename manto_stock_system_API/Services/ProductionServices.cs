@@ -26,9 +26,21 @@ namespace manto_stock_system_API.Services
                 .Include(p => p.Items)
                 .ThenInclude(p => p.Product)
                 .AsQueryable();
-
-            return await productions.FilterSortPaginate<Production, ProductionDTO>(
+     
+            var productionsDTOs = await productions.FilterSortPaginate<Production, ProductionDTO>(
                 baseFilter, _mapper);
+
+            foreach (var production in productionsDTOs.Items)
+            {
+                var totalProduction = 0;
+                foreach (var item in production.Items)
+                {
+                    totalProduction += item.Amount;
+                }
+                production.TotalProduction = totalProduction;
+            }
+
+            return productionsDTOs;
         }
 
 
@@ -44,7 +56,18 @@ namespace manto_stock_system_API.Services
                 return null;
             }
 
-            return _mapper.Map<ProductionDTO>(production);
+            var totalProduction = 0;
+
+
+            var dto = _mapper.Map<ProductionDTO>(production);
+
+            foreach (var item in dto.Items)
+            {
+                totalProduction += item.Amount;
+            }
+            dto.TotalProduction = totalProduction;
+
+            return dto;
         }
 
         public async Task<ProductionDTO> CreateProduction(ProductionCreationDTO productionCreationDTO)

@@ -84,6 +84,13 @@ namespace manto_stock_system_API.Services
             return saleDTO;
         }
 
+        public async Task<ListResponse<SaleDTO>> GetLastSales()
+        {
+            var sales = await _context.Sales.Include(s => s.Client).OrderByDescending(s => s.Id).Take(5).ToListAsync();
+
+            return new ListResponse<SaleDTO>(_mapper.Map<List<SaleDTO>>(sales), sales.Count);
+        }
+
         public async Task<string> GetGeneralReport(BaseFilter baseFilter)
         {
             var filterWithCappedRange = baseFilter;

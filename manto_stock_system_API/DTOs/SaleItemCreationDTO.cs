@@ -1,6 +1,4 @@
 ﻿
-using manto_stock_system_API.Entities;
-
 namespace manto_stock_system_API.DTOs
 {
     public class SaleItemCreationDTO

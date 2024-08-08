@@ -101,6 +101,16 @@ namespace manto_stock_system_API.Controllers
         }
 
         /// <summary>
+        ///  Get Last Purchases
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("last")]
+        public async Task<ActionResult<ListResponse<PurchaseDTO>>> GetLastPurchases()
+        {
+            return Ok(await _purchaseServices.GetLastPurchases());
+        }
+
+        /// <summary>
         /// Get report
         /// </summary>
         /// <param name="baseFilter"></param>
