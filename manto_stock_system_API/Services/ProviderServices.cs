@@ -161,6 +161,13 @@ namespace manto_stock_system_API.Services
             return await cities.FilterSortPaginate<City, CityDTO>(
                 baseFilter, _mapper);
         }
+
+        public async Task<BalanceDTO> GetBalance()
+        {
+            var balance = await _context.Balances.FirstAsync();
+
+            return _mapper.Map<BalanceDTO>(balance);
+        }
     }
 }
 

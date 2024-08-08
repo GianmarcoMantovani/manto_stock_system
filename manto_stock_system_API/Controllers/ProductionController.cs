@@ -57,7 +57,7 @@ namespace manto_stock_system_API.Controllers
         {
             var response = await _productionServices.CreateProduction(productionCreationDTO);
 
-            if (response == null) return NotFound("There is no products in this sale");
+            if (response == null) return NotFound("There is no products in this production");
 
             return CreatedAtRoute("CreateProduction", response);
         }

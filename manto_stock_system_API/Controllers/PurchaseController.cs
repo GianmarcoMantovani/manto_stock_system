@@ -86,6 +86,21 @@ namespace manto_stock_system_API.Controllers
         }
 
         /// <summary>
+        ///  Delete purchase
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<PurchaseDTO>> DeletePurchase(
+            [FromRoute] int id)
+        {
+            var response = await _purchaseServices.DeletePurchase(id);
+
+            if (response == null) return NotFound("Purchase not found");
+            return response;
+        }
+
+        /// <summary>
         /// Get report
         /// </summary>
         /// <param name="baseFilter"></param>

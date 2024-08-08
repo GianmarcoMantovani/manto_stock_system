@@ -16,6 +16,7 @@ namespace manto_stock_system_API
         }
 
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+        public DbSet<Balance> Balances { get; set; }
         public DbSet<Client> Clients { get; set; }
         public DbSet<City> Cities { get; set; }
         public DbSet<Product> Products { get; set; }

@@ -123,5 +123,15 @@ namespace manto_stock_system_API.Controllers
         {
             return await _providerServices.GetCities(baseFilter);
         }
+
+        /// <summary>
+        ///  Get Company balance
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("balance")]
+        public async Task<ActionResult<BalanceDTO>> GetBalance()
+        {
+            return await _providerServices.GetBalance();
+        }
     }
 }

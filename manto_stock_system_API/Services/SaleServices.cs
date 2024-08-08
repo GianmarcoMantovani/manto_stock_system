@@ -72,7 +72,11 @@ namespace manto_stock_system_API.Services
                 await _context.SaveChangesAsync();
             }
 
+            var balance = await _context.Balances.FirstAsync();
+            balance.TotalCapital += saleCreationDTO.TotalPrice;
+
             await _context.AddAsync(sale);
+
             await _context.SaveChangesAsync();
 
             var saleDTO = _mapper.Map<SaleDTO>(sale);

@@ -53,6 +53,10 @@ namespace manto_stock_system_API.Services
             var purchase = _mapper.Map<Purchase>(purchaseCreationDTO);
 
             await _context.AddAsync(purchase);
+
+            var balance = await _context.Balances.FirstAsync();
+            balance.TotalCapital -= purchase.Amount;
+
             await _context.SaveChangesAsync();
 
             var purchaseDTO = _mapper.Map<PurchaseDTO>(purchase);
@@ -73,6 +77,18 @@ namespace manto_stock_system_API.Services
                 return null;
             }
 
+            var amountOp = patchDocument.Operations.FirstOrDefault(op => op.path == "/amount");
+            if (amountOp != null)
+            {
+                if (double.TryParse(amountOp.value.ToString(), out double amountValue))
+                {
+                    var balance = await _context.Balances.FirstAsync();
+
+                    balance.TotalCapital += purchase.Amount;
+                    balance.TotalCapital -= amountValue;
+                }
+            }
+
             var purchasePatchDTO = _mapper.Map<PurchasePatchDTO>(purchase);
 
             patchDocument.ApplyTo(purchasePatchDTO, modelState);
@@ -85,6 +101,26 @@ namespace manto_stock_system_API.Services
             _mapper.Map(purchasePatchDTO, purchase);
 
             await _context.SaveChangesAsync();
+            var purchaseDTO = _mapper.Map<PurchaseDTO>(purchase);
+
+            return purchaseDTO;
+        }
+
+        public async Task<PurchaseDTO> DeletePurchase(int id)
+        {
+            var purchase = await _context.Purchases.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (purchase == null)
+            {
+                return null;
+            }
+
+            var balance = await _context.Balances.FirstAsync();
+            balance.TotalCapital += purchase.Amount;
+
+            _context.Remove(purchase);
+            await _context.SaveChangesAsync();
+
             var purchaseDTO = _mapper.Map<PurchaseDTO>(purchase);
             return purchaseDTO;
         }
