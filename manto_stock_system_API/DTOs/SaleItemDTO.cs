@@ -8,6 +8,7 @@ namespace manto_stock_system_API.DTOs
         public int Id { get; set; }
         public ProductDTO Product { get; set; }
         public int Amount { get; set; }
+        public double UnitPrice { get; set; }
         public SaleDTO Sale { get; set; }
     }
 }

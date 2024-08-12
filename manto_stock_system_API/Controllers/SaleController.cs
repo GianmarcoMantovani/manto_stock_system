@@ -2,6 +2,7 @@
 using manto_stock_system_API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace manto_stock_system_API.Controllers
@@ -42,6 +43,30 @@ namespace manto_stock_system_API.Controllers
             var response = await _saleServices.GetSaleById(id);
 
             if (response == null) return NotFound("Sale not found");
+            return response;
+        }
+
+        /// <summary>
+        ///  Edit a sale
+        /// </summary>
+        /// <param name="id"></param>
+        /// /// <param name="patchDocument"></param>
+        /// <returns></returns>
+        [HttpPatch("{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<ActionResult<SaleDTO>> PatchSale(
+            [FromRoute] int id,
+            [FromBody] JsonPatchDocument<SalePatchDTO> patchDocument)
+        {
+            if (patchDocument == null)
+            {
+                return BadRequest("ProductPatchDocument doesn´t exists");
+            }
+
+            var response = await _saleServices.PatchSale(id, patchDocument, ModelState);
+
+            if (response == null) return NotFound("No se puede editar una venta cobrada");
+
             return response;
         }
 

@@ -10,5 +10,6 @@
         public Client Client { get; set; }
         public DateTime Date { get; set; } = DateTime.UtcNow;
         public double TotalPrice { get; set; }
+        public bool Sold { get; set; }    
     }
 }

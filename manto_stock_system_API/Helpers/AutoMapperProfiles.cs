@@ -41,6 +41,7 @@ namespace manto_stock_system_API.Helpers
             CreateMap<SaleCreationDTO, Sale>();
             CreateMap<SaleItem, SaleItemDTO>();
             CreateMap<SaleItemCreationDTO, SaleItem>();
+            CreateMap<Sale, SalePatchDTO>().ReverseMap();
 
             CreateMap<Balance, BalanceDTO>();
         }

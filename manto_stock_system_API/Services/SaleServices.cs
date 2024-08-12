@@ -3,7 +3,11 @@ using ClosedXML.Excel;
 using manto_stock_system_API.DTOs;
 using manto_stock_system_API.Entities;
 using manto_stock_system_API.Extensions;
+using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace manto_stock_system_API.Services
 {
@@ -49,9 +53,49 @@ namespace manto_stock_system_API.Services
             return _mapper.Map<SaleDTO>(sale);
         }
 
+        public async Task<SaleDTO> PatchSale(int id,
+            JsonPatchDocument<SalePatchDTO> patchDocument,
+            ModelStateDictionary modelState)
+        {
+            var sale = await _context.Sales
+                .Include(s => s.Client)
+                .Include(s => s.Items)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (sale.Sold == true)
+            {
+                return null;
+            }
+
+            var salePatchDTO = _mapper.Map<SalePatchDTO>(sale);
+
+            patchDocument.ApplyTo(salePatchDTO, modelState);
+
+            if (!modelState.IsValid)
+            {
+                throw new BadHttpRequestException("The modelstate is not valid");
+            }
+
+            _mapper.Map(salePatchDTO, sale);
+
+            var soldOp = patchDocument.Operations.FirstOrDefault(op => op.path == "/sold");
+            if ((bool)soldOp.value == true)
+            {
+                sale.Sold = (bool)soldOp.value;
+
+                var balance = await _context.Balances.FirstAsync();
+                balance.TotalCapital += sale.TotalPrice;
+            }
+
+            await _context.SaveChangesAsync();
+            var saleDTO = _mapper.Map<SaleDTO>(sale);
+            return saleDTO;
+        }
+
         public async Task<SaleDTO> CreateSale(SaleCreationDTO saleCreationDTO)
         {
             var sale = _mapper.Map<Sale>(saleCreationDTO);
+            double totalPrice = 0;
 
             var productIds = saleCreationDTO.Items.Select(i => i.ProductId).Distinct().ToList();
             var products = await _context.Products
@@ -65,18 +109,21 @@ namespace manto_stock_system_API.Services
 
             foreach (var item in saleCreationDTO.Items)
             {
+                totalPrice += item.UnitPrice * item.Amount;
                 var product = products.FirstOrDefault(p => p.Id == item.ProductId);
 
                 product.Stock -= item.Amount;
-
-                await _context.SaveChangesAsync();
             }
 
-            var balance = await _context.Balances.FirstAsync();
-            balance.TotalCapital += saleCreationDTO.TotalPrice;
+            sale.TotalPrice = totalPrice;
+
+            if (saleCreationDTO.Sold)
+            {
+                var balance = await _context.Balances.FirstAsync();
+                balance.TotalCapital += sale.TotalPrice;
+            }
 
             await _context.AddAsync(sale);
-
             await _context.SaveChangesAsync();
 
             var saleDTO = _mapper.Map<SaleDTO>(sale);
@@ -86,7 +133,12 @@ namespace manto_stock_system_API.Services
 
         public async Task<ListResponse<SaleDTO>> GetLastSales()
         {
-            var sales = await _context.Sales.Include(s => s.Client).OrderByDescending(s => s.Id).Take(5).ToListAsync();
+            var sales = await _context.Sales
+                .Where(s => s.Sold == true)
+                .Include(s => s.Client)
+                .OrderByDescending(s => s.Id)
+                .Take(5)
+                .ToListAsync();
 
             return new ListResponse<SaleDTO>(_mapper.Map<List<SaleDTO>>(sales), sales.Count);
         }
