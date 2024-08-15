@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using static manto_stock_system_API.Utils.Constants;
 
 namespace manto_stock_system_API.Controllers
@@ -132,6 +133,27 @@ namespace manto_stock_system_API.Controllers
             var content = new FormUrlEncodedContent(postData);
 
             var response = await httpClient.PostAsync(requestUri, content);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return BadRequest($"Error: {response.StatusCode}");
+            }
+
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            return Ok(responseContent);
+        }
+
+        [HttpGet("get-userinfo")]
+        public async Task<IActionResult> GetUserInfo(string accessToken)
+        {
+            var requestUri = "https://tonic33-dev-ed.develop.my.salesforce.com/services/oauth2/userinfo";
+
+            var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
+
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            var response = await httpClient.SendAsync(request);
 
             if (!response.IsSuccessStatusCode)
             {
