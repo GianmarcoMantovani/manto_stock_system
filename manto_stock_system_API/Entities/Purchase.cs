@@ -8,6 +8,6 @@
         public int ProviderId { get; set; }
         public Provider Provider { get; set; }
         public double Amount { get; set; }
-        public DateTime Date { get; set; } = DateTime.UtcNow;
+        public DateOnly Date { get; set; } = DateOnly.FromDateTime(DateTime.Today);
     }
 }

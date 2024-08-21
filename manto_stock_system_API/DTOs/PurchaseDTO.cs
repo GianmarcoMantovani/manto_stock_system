@@ -8,6 +8,6 @@ namespace manto_stock_system_API.DTOs
         public string Description { get; set; }
         public ProviderDTO Provider { get; set; }
         public double Amount { get; set; }
-        public DateTime Date { get; set; }
+        public DateOnly Date { get; set; }
     }
 }
